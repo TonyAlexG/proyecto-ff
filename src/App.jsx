@@ -5,9 +5,28 @@ import Inicio from "./views/Inicio";
 import Categorias from "./views/Categorias";
 import Productos from "./views/Productos";
 import Catalogo from "./views/Catalogo";
+import { useEffect } from "react";
+import { db } from "./firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
 import "./App.css";
 
 const App = () => {
+  useEffect(() => {
+    // Prueba mínima silenciosa (solo en consola)
+    const probarFirebase = async () => {
+      try {
+        await addDoc(collection(db, 'prueba'), {
+          mensaje: 'Conexión verificada - ' + new Date().toLocaleDateString(),
+          fecha: new Date()
+        });
+        console.log('✅ Firebase conectado correctamente');
+      } catch (error) {
+        console.error('❌ Error Firebase:', error);
+      }
+    };
+    probarFirebase();
+  }, []);
+
   return (
     <Router>
       <Encabezado />
