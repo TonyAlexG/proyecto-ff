@@ -6,7 +6,7 @@ import Categorias from "./views/Categorias";
 import Productos from "./views/Productos";
 import Catalogo from "./views/Catalogo";
 import { useEffect } from "react";
-import { db } from "./firebaseConfig";
+import { db } from "./database/firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import "./App.css";
 
