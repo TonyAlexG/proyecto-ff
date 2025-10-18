@@ -5,9 +5,12 @@ import { collection, getDocs, addDoc, doc, deleteDoc } from "firebase/firestore"
 import TablaCategorias from "../components/categories/TablaCategorias";
 import ModalRegistroCategoria from "../components/categories/ModalRegistroCategoria";
 import ModalEliminacionCategoria from "../components/categories/ModalEliminacionCategoria";
+import CuadroBusquedas from "../components/busquedas/CuadroBusquedas";
 
 const Categorias = () => {
   const [categories, setCategories] = useState([]);
+  const [categoriasFiltradas, setCategoriasFiltradas] = useState([]);
+  const [textoBusqueda, setTextoBusqueda] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
   const [categoriaAEliminar, setCategoriaAEliminar] = useState(null);
@@ -28,9 +31,23 @@ const Categorias = () => {
         ...doc.data(),
       }));
       setCategories(datosCategorias);
+      setCategoriasFiltradas(datosCategorias);
     } catch (error) {
       console.error("Error al cargar categorías:", error);
     }
+  };
+
+  // Manejar cambios en la búsqueda
+  const manejarCambioBusqueda = (e) => {
+    const texto = e.target.value.toLowerCase();
+    setTextoBusqueda(texto);
+
+    const filtradas = categories.filter(
+      (categoria) =>
+        categoria.nombre.toLowerCase().includes(texto) ||
+        categoria.descripcion.toLowerCase().includes(texto)
+    );
+    setCategoriasFiltradas(filtradas);
   };
 
   // Manejar cambios en inputs
@@ -84,7 +101,7 @@ const Categorias = () => {
   }, []);
 
   return (
-    <div className="p-4">
+    <div className="p-4 container">
       {/* HEADER SIMPLE COMO EN LA IMAGEN */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -100,11 +117,32 @@ const Categorias = () => {
         </Button>
       </div>
 
+      {/* CUADRO DE BÚSQUEDA Y BOTÓN EN FILA */}
+      <Row className="mb-3">
+        <Col lg={3} md={4} sm={4} xs={5}>
+          <Button
+            className="mb-3"
+            onClick={() => setMostrarModal(true)}
+            style={{ width: "100%" }}
+          >
+            Agregar categoría
+          </Button>
+        </Col>
+        <Col lg={5} md={8} sm={8} xs={7}>
+          <CuadroBusquedas
+            textoBusqueda={textoBusqueda}
+            manejarCambioBusqueda={manejarCambioBusqueda}
+          />
+        </Col>
+      </Row>
+
       {/* TABLA COMPACTA */}
-      <Card className="border-0 shadow-sm">
+      <Card className="border-0 container shadow-sm" style={{
+        width: "100%"
+      }}>
         <Card.Body className="p-0">
           <TablaCategorias 
-            categories={categories} 
+            categories={categoriasFiltradas}
             manejarEliminar={manejarEliminar}
           />
         </Card.Body>
