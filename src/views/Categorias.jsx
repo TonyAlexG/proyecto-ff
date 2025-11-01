@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Button, Card } from "react-bootstrap";
+import { Row, Col, Button } from "react-bootstrap";
 import { db } from "../database/firebaseConfig";
 import { collection, getDocs, addDoc, doc, deleteDoc } from "firebase/firestore";
 import TablaCategorias from "../components/categories/TablaCategorias";
@@ -22,7 +22,6 @@ const Categorias = () => {
 
   const categoriesCollection = collection(db, "categories");
 
-  // Cargar categorías
   const cargarCategorias = async () => {
     try {
       const consulta = await getDocs(categoriesCollection);
@@ -37,7 +36,6 @@ const Categorias = () => {
     }
   };
 
-  // Manejar cambios en la búsqueda
   const manejarCambioBusqueda = (e) => {
     const texto = e.target.value.toLowerCase();
     setTextoBusqueda(texto);
@@ -50,7 +48,6 @@ const Categorias = () => {
     setCategoriasFiltradas(filtradas);
   };
 
-  // Manejar cambios en inputs
   const manejoCambioInput = (e) => {
     const { name, value } = e.target;
     setNuevaCategoria((prev) => ({
@@ -59,7 +56,6 @@ const Categorias = () => {
     }));
   };
 
-  // Agregar nueva categoría
   const agregarCategoria = async () => {
     if (!nuevaCategoria.nombre || !nuevaCategoria.descripcion) {
       alert("Por favor, completa todos los campos antes de guardar.");
@@ -78,7 +74,6 @@ const Categorias = () => {
     }
   };
 
-  // Eliminar categoría
   const eliminarCategoria = async () => {
     try {
       await deleteDoc(doc(db, "categories", categoriaAEliminar.id));
@@ -90,7 +85,6 @@ const Categorias = () => {
     }
   };
 
-  // Manejar clic en botón eliminar
   const manejarEliminar = (categoria) => {
     setCategoriaAEliminar(categoria);
     setMostrarModalEliminar(true);
@@ -101,29 +95,24 @@ const Categorias = () => {
   }, []);
 
   return (
-    <div className="p-4 container">
-      {/* HEADER SIMPLE COMO EN LA IMAGEN */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 className="h4 fw-bold mb-1">Gestión de Categorías</h2>
-          <p className="text-muted mb-0">Administra las categorías de productos</p>
-        </div>
-        <Button 
-          variant="primary"
-          onClick={() => setMostrarModal(true)}
-          className="px-4"
-        >
-          + Agregar categoría
-        </Button>
+    <div style={{ 
+      width: '100vw', 
+      minHeight: '100vh',
+      padding: '2rem',
+      margin: 0,
+      boxSizing: 'border-box'
+    }}>
+      {/* TÍTULO */}
+      <div style={{ marginBottom: '2rem' }}>
+        <h4 style={{ fontWeight: 'bold', margin: 0, fontSize: '1.5rem' }}>Gestión de Categorías</h4>
       </div>
-
-      {/* CUADRO DE BÚSQUEDA Y BOTÓN EN FILA */}
-      <Row className="mb-3">
+      
+      {/* BOTÓN Y BÚSQUEDA */}
+      <Row style={{ marginBottom: '2rem', width: '100%' }}>
         <Col lg={3} md={4} sm={4} xs={5}>
           <Button
-            className="mb-3"
             onClick={() => setMostrarModal(true)}
-            style={{ width: "100%" }}
+            style={{ width: "100%", padding: '10px' }}
           >
             Agregar categoría
           </Button>
@@ -136,17 +125,20 @@ const Categorias = () => {
         </Col>
       </Row>
 
-      {/* TABLA COMPACTA */}
-      <Card className="border-0 container shadow-sm" style={{
-        width: "100%"
+      {/* TABLA - OCUPA TODO EL ANCHO */}
+      <div style={{ 
+        width: '95%', 
+        overflowX: 'auto',
+        border: '1px solid #ddd',
+        borderRadius: '8px',
+        padding: '1rem',
+        backgroundColor: 'white'
       }}>
-        <Card.Body className="p-0">
-          <TablaCategorias 
-            categories={categoriasFiltradas}
-            manejarEliminar={manejarEliminar}
-          />
-        </Card.Body>
-      </Card>
+        <TablaCategorias 
+          categories={categoriasFiltradas}
+          manejarEliminar={manejarEliminar}
+        />
+      </div>
 
       {/* MODALES */}
       <ModalRegistroCategoria

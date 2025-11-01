@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // ← Agregar Link aquí
 import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 
 const Encabezado = () => {
@@ -44,8 +44,9 @@ const Encabezado = () => {
             <Nav className="flex-grow-1 pe-3">
               <Nav.Link onClick={() => manejarNavegacion("/inicio")}>Inicio</Nav.Link>
               <Nav.Link onClick={() => manejarNavegacion("/categorias")}>Categorías</Nav.Link>
-              <Nav.Link onClick={() => manejarNavegacion("/productos")}>Productos</Nav.Link>
+              <Nav.Link onClick={() => manejarNavegacion("/productos")}>Productos</Nav.Link> {/* ← Solo uno */}
               <Nav.Link onClick={() => manejarNavegacion("/catalogo")}>Catálogo</Nav.Link>
+              {/* Elimina esta línea duplicada: <Nav.Link as={Link} to="/productos">Productos</Nav.Link> */}
             </Nav>
           </Offcanvas.Body>
         </Navbar.Offcanvas>

@@ -12,7 +12,6 @@ import "./App.css";
 
 const App = () => {
   useEffect(() => {
-    // Prueba mínima silenciosa (solo en consola)
     const probarFirebase = async () => {
       try {
         await addDoc(collection(db, 'prueba'), {
@@ -35,7 +34,7 @@ const App = () => {
           <Route path="/" element={<Login />} />
           <Route path="/inicio" element={<Inicio />} />
           <Route path="/categorias" element={<Categorias />} />
-          <Route path="/productos" element={<Productos />} />
+          <Route path="/productos" element={<Productos />} /> {/* ← SOLO UNA VEZ */}
           <Route path="/catalogo" element={<Catalogo />} />
           <Route path="*" element={<h2>404 - Página no encontrada</h2>} />
         </Routes>

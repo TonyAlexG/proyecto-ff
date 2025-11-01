@@ -1,32 +1,41 @@
 import React from "react";
-import { Table, Button } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 
 const TablaCategorias = ({ categories, manejarEliminar }) => {
+  // ✅ Si NO hay categorías, mostrar mensaje
+  if (!categories || categories.length === 0) {
+    return <p>No hay categorías disponibles. Crea algunas categorías primero.</p>;
+  }
+
+  // ✅ Si HAY categorías, mostrar la tabla
   return (
-    <Table striped hover className="mb-0">
-      <thead className="bg-light">
+    <Table striped bordered hover responsive>
+      <thead>
         <tr>
-          <th className="py-2 border-0">Nombre</th>
-          <th className="py-2 border-0">Descripción</th>
-          <th className="py-2 border-0 text-center">Acciones</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
         {categories.map((categoria) => (
           <tr key={categoria.id}>
-            <td className="py-2 align-middle border-0">
-              {categoria.nombre}
-            </td>
-            <td className="py-2 align-middle border-0">{categoria.descripcion}</td>
-            <td className="py-2 align-middle border-0 text-center">
-              <Button
-                variant="outline-danger"
-                size="sm"
+            <td>{categoria.nombre}</td>
+            <td>{categoria.descripcion}</td>
+            <td>
+              <button 
                 onClick={() => manejarEliminar(categoria)}
-                className="px-3"
+                style={{
+                  background: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  padding: '5px 10px',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
               >
-                🗑️
-              </Button>
+                Eliminar
+              </button>
             </td>
           </tr>
         ))}
