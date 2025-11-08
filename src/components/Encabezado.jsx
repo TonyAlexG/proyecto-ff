@@ -46,6 +46,7 @@ const Encabezado = () => {
               <Nav.Link onClick={() => manejarNavegacion("/categorias")}>Categorías</Nav.Link>
               <Nav.Link onClick={() => manejarNavegacion("/productos")}>Productos</Nav.Link> {/* ← Solo uno */}
               <Nav.Link onClick={() => manejarNavegacion("/catalogo")}>Catálogo</Nav.Link>
+              <Nav.Link href="/estadisticas">Estadísticas</Nav.Link>
               {/* Elimina esta línea duplicada: <Nav.Link as={Link} to="/productos">Productos</Nav.Link> */}
             </Nav>
           </Offcanvas.Body>

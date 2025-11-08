@@ -5,6 +5,7 @@ import Inicio from "./views/Inicio";
 import Categorias from "./views/Categorias";
 import Productos from "./views/Productos";
 import Catalogo from "./views/Catalogo";
+import Estadisticas from "./components/estadisticas/Estadisticas"; // ← NUEVA IMPORTACIÓN
 import { useEffect } from "react";
 import { db } from "./database/firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
@@ -34,8 +35,9 @@ const App = () => {
           <Route path="/" element={<Login />} />
           <Route path="/inicio" element={<Inicio />} />
           <Route path="/categorias" element={<Categorias />} />
-          <Route path="/productos" element={<Productos />} /> {/* ← SOLO UNA VEZ */}
+          <Route path="/productos" element={<Productos />} />
           <Route path="/catalogo" element={<Catalogo />} />
+          <Route path="/estadisticas" element={<Estadisticas />} />
           <Route path="*" element={<h2>404 - Página no encontrada</h2>} />
         </Routes>
       </main>
