@@ -8,6 +8,12 @@ import ModalEliminacionProducto from "../components/productos/ModalEliminacionPr
 import ModalEdicionProducto from "../components/productos/ModalEdicionProducto";
 import CuadroBusquedas from "../components/busquedas/CuadroBusquedas";
 
+// ✅ NUEVAS IMPORTACIONES PARA REPORTES
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+
 const Productos = () => {
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
@@ -23,7 +29,7 @@ const Productos = () => {
     precio: null,
     stock: null,
     categoria: "",
-    imagen: "", // ✅ CAMPO IMAGEN AGREGADO
+    imagen: "",
   });
 
   const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
@@ -32,10 +38,127 @@ const Productos = () => {
   const [mostrarModalEditar, setMostrarModalEditar] = useState(false);
   const [productoEditado, setProductoEditado] = useState(null);
 
-  // DIAGNÓSTICO: Agregar console.log para ver el estado
-  console.log("🎯 RENDER - Estado de categorías:", categorias);
-  console.log("🎯 RENDER - Número de categorías:", categorias.length);
+  // ✅ MÉTODO PARA GENERAR PDF
+  const generarPDFProductos = () => {
+    const doc = new jsPDF();
 
+    // Encabezado del PDF
+    doc.setFillColor(28, 41, 51);
+    doc.rect(0, 0, 220, 30, 'F');
+
+    // Título del documento
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(28);
+    doc.text("Reporte de Productos", 105, 18, { align: 'center' });
+
+    // Información de la empresa
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.text("Ferretería Más Cargada Poderosa", 14, 40);
+    doc.text(`Generado: ${new Date().toLocaleDateString()}`, 14, 48);
+
+    // Encabezados de la tabla
+    const headers = [['ID', 'Nombre', 'Categoría', 'Precio ($)', 'Stock', 'Descripción']];
+
+    // Datos de la tabla - usar productosFiltrados si hay búsqueda, sino todos los productos
+    const datosParaReporte = productosFiltrados.length > 0 ? productosFiltrados : productos;
+    
+    const data = datosParaReporte.map(producto => [
+      producto.id?.substring(0, 8) || 'N/A',
+      producto.nombre || 'Sin nombre',
+      categorias.find(cat => cat.id === producto.categoria)?.nombre || 'Sin categoría',
+      `$${parseFloat(producto.precio || 0).toFixed(2)}`,
+      producto.stock || 0,
+      producto.descripcion?.substring(0, 30) + (producto.descripcion?.length > 30 ? '...' : '') || 'Sin descripción'
+    ]);
+
+    // Generar tabla
+    autoTable(doc, {
+      head: headers,
+      body: data,
+      startY: 55,
+      styles: {
+        fontSize: 9,
+        cellPadding: 2,
+      },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245]
+      },
+      margin: { top: 55 }
+    });
+
+    // Pie de página
+    const pageCount = doc.internal.getNumberOfPages();
+    doc.setFontSize(10);
+    
+    for(let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.text(
+        `Página ${i} de ${pageCount}`,
+        doc.internal.pageSize.width / 2,
+        doc.internal.pageSize.height - 10,
+        { align: 'center' }
+      );
+    }
+
+    // Guardar el documento
+    const fecha = new Date().toISOString().split('T')[0];
+    const nombreArchivo = `Productos_${fecha}.pdf`;
+    doc.save(nombreArchivo);
+  };
+
+  // ✅ MÉTODO PARA GENERAR EXCEL
+  const exportarExcelProductos = () => {
+    // Usar productos filtrados si hay búsqueda, sino todos los productos
+    const datosParaReporte = productosFiltrados.length > 0 ? productosFiltrados : productos;
+    
+    // Estructura de los datos
+    const datosExcel = datosParaReporte.map(producto => ({
+      'ID': producto.id?.substring(0, 8) || 'N/A',
+      'Nombre': producto.nombre || 'Sin nombre',
+      'Categoría': categorias.find(cat => cat.id === producto.categoria)?.nombre || 'Sin categoría',
+      'Precio': parseFloat(producto.precio || 0),
+      'Stock': producto.stock || 0,
+      'Descripción': producto.descripcion || 'Sin descripción'
+    }));
+
+    // Crear hoja de trabajo
+    const worksheet = XLSX.utils.json_to_sheet(datosExcel);
+    
+    // Crear libro de trabajo
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Productos");
+
+    // Configurar anchos de columnas
+    const columnWidths = [
+      { wch: 12 }, // ID
+      { wch: 25 }, // Nombre
+      { wch: 20 }, // Categoría
+      { wch: 12 }, // Precio
+      { wch: 8 },  // Stock
+      { wch: 40 }  // Descripción
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    // Generar archivo binario
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    
+    // Crear blob y guardar
+    const data = new Blob([excelBuffer], { 
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    });
+    
+    const fecha = new Date().toISOString().split('T')[0];
+    const nombreArchivo = `Productos_${fecha}.xlsx`;
+    saveAs(data, nombreArchivo);
+  };
+
+  // El resto de tu código permanece igual...
   const manejoCambioInputEditar = (e) => {
     const { name, value } = e.target;
     setProductoEditado((prev) => ({
@@ -69,7 +192,7 @@ const Productos = () => {
         precio: productoEditado.precio,
         stock: productoEditado.stock,
         categoria: productoEditado.categoria,
-        imagen: productoEditado.imagen // ✅ IMAGEN INCLUIDA EN ACTUALIZACIÓN
+        imagen: productoEditado.imagen
       });
       cargarProductos();
       setProductoEditado(null);
@@ -107,7 +230,7 @@ const Productos = () => {
         precio: null,
         stock: null,
         categoria: "",
-        imagen: "", // ✅ IMAGEN INCLUIDA EN RESET
+        imagen: "",
       });
       cargarProductos();
     } catch (error) {
@@ -171,11 +294,6 @@ const Productos = () => {
     cargarCategorias();
   }, []);
 
-  // DIAGNÓSTICO: Monitorear cambios en categorías
-  useEffect(() => {
-    console.log("🔄 CATEGORÍAS ACTUALIZADAS:", categorias);
-  }, [categorias]);
-
   const manejarCambioBusqueda = (e) => {
     const texto = e.target.value.toLowerCase();
     setTextoBusqueda(texto);
@@ -206,17 +324,42 @@ const Productos = () => {
         <h4 style={{ fontWeight: 'bold', margin: 0, fontSize: '1.5rem' }}>Gestión de Productos</h4>
       </div>
       
-      {/* BOTÓN Y BÚSQUEDA */}
+      {/* ✅ BOTONES ACTUALIZADOS CON REPORTES */}
       <Row style={{ marginBottom: '2rem', width: '100%' }}>
-        <Col lg={3} md={4} sm={4} xs={5}>
+        <Col lg={2} md={4} sm={6} xs={12} className="mb-2">
           <Button
             onClick={() => setMostrarModal(true)}
+            variant="primary"
             style={{ width: "100%", padding: '10px' }}
           >
-            Agregar Producto
+            ➕ Agregar
           </Button>
         </Col>
-        <Col lg={5} md={8} sm={8} xs={7}>
+
+        {/* ✅ NUEVO BOTÓN PDF */}
+        <Col lg={2} md={4} sm={6} xs={12} className="mb-2">
+          <Button
+            onClick={generarPDFProductos}
+            variant="danger"
+            style={{ width: "100%", padding: '10px' }}
+          >
+            📊 Generar PDF
+          </Button>
+        </Col>
+
+        {/* ✅ NUEVO BOTÓN EXCEL */}
+        <Col lg={2} md={4} sm={6} xs={12} className="mb-2">
+          <Button
+            onClick={exportarExcelProductos}
+            variant="success"
+            style={{ width: "100%", padding: '10px' }}
+          >
+            📈 Generar Excel
+          </Button>
+        </Col>
+
+        {/* BÚSQUEDA */}
+        <Col lg={6} md={12} sm={12} xs={12} className="mb-2">
           <CuadroBusquedas
             textoBusqueda={textoBusqueda}
             manejarCambioBusqueda={manejarCambioBusqueda}
@@ -224,7 +367,7 @@ const Productos = () => {
         </Col>
       </Row>
 
-      {/* TABLA - OCUPA TODO EL ANCHO */}
+      {/* TABLA */}
       <div style={{ 
         width: '100%', 
         overflowX: 'auto',
